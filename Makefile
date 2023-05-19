@@ -1,9 +1,9 @@
-APP=$(shell basename $(shell git remote get-url origin))
-VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
-REGISTRY=gcr.io
-TARGETOS=linux
-TARGETARCH=amd64
-CGO_ENABLED=0
+APP := $(shell basename $(shell git remote get-url origin))
+VERSION := $(shell git describe --tags --abbrev=0)
+REGISTRY := gcr.io
+TARGETOS := linux
+TARGETARCH := amd64
+CGO_ENABLED := 0
 
 format:
 	gofmt -s -w ./
