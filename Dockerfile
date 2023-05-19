@@ -1,11 +1,10 @@
 FROM quay.io/projectquay/golang:1.20 as builder
 
+WORKDIR /go/src/app
+COPY . .
 ARG TARGETARCH
 ARG TARGETOS
 ARG CGO_ENABLED
-
-WORKDIR /go/src/app
-COPY . .
 RUN make build TARGETOS=${TARGETOS} TARGETARCH=${TARGETARCH} CGO_ENABLED=${CGO_ENABLED}
 
 FROM scratch

@@ -1,6 +1,6 @@
 APP=$(shell basename $(shell git remote get-url origin))
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
-REGISTRY=us-central1-docker.pkg.dev/x-catwalk-854/repo-10-usd
+REGISTRY=gcr.io
 TARGETOS=linux
 TARGETARCH=amd64
 CGO_ENABLED=0
@@ -14,10 +14,7 @@ lint:
 test:
 	go test -v
 
-get:
-	go get
-
-build: format get
+build:
 	CGO_ENABLED=${CGO_ENABLED} GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/vhula/kbot/cmd.appVersion=${VERSION}
 
 linux:
