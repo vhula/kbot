@@ -1,8 +1,9 @@
 APP=$(shell basename $(shell git remote get-url origin))
-REGISTRY=vadymhula
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+REGISTRY=us-central1-docker.pkg.dev/x-catwalk-854/repo-10-usd
 TARGETOS=linux
 TARGETARCH=amd64
+CGO_ENABLED=0
 
 format:
 	gofmt -s -w ./
@@ -17,26 +18,26 @@ get:
 	go get
 
 build: format get
-	CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/vhula/kbot/cmd.appVersion=${VERSION}
+	CGO_ENABLED=${CGO_ENABLED} GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/vhula/kbot/cmd.appVersion=${VERSION}
 
 linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/vhula/kbot/cmd.appVersion=${VERSION}
+	${MAKE} build TARGETOS=linux TARGETARCH=${TARGETARCH}
 
 windows:
-	CGO_ENABLED=0 GOOS=windows GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/vhula/kbot/cmd.appVersion=${VERSION}
+	${MAKE} build TARGETOS=windows TARGETARCH=${TARGETARCH}
 
-darwin:
-	CGO_ENABLED=0 GOOS=darwin GOARCH=${TARGETARCH} go build -v -o kbot -ldflags "-X="github.com/vhula/kbot/cmd.appVersion=${VERSION}
+macOS:
+	${MAKE} build TARGETOS=darwin TARGETARCH=${TARGETARCH}
+
+arm:
+	${MAKE} build TARGETOS=${TARGETOS} TARGETARCH=arm
 
 image:
-	docker build . -t ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH} --build-arg TARGETARCH=${TARGETARCH} --build-arg TARGETOS=${TARGETOS}
-
-tag: image
-	docker tag ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH} gcr.io/repo-10-usd/${APP}:${VERSION}-${TARGETARCH}
+	docker build . -t ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH} --build-arg CGO_ENABLED=${CGO_ENABLED} --build-arg TARGETARCH=${TARGETARCH} --build-arg TARGETOS=${TARGETOS}
 
 push:
-	docker push gcr.io/repo-10-usd/${APP}:${VERSION}-${TARGETARCH}
+	docker push ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH}
 
 clean:
-	rm -f kbot
 	docker rmi ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH}
+	rm -f kbot
